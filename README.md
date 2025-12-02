@@ -11,6 +11,51 @@ To use Google Cloud services, you need to install the gcloud CLI and set up auth
 
 **Application Default Credentials (ADC)** are a strategy used by Google client libraries to automatically find credentials. When you run `gcloud auth application-default login`, it stores your user credentials in a well-known location that Google client libraries can automatically discover and use for API calls. This eliminates the need to explicitly pass credentials in your code.
 
+### Environment Variables
+
+This project uses environment variables to manage secrets and configuration (like Google Cloud project IDs, bucket locations, etc.) without committing them to git.
+
+#### Initial Setup for New Developers
+
+1. **Copy the example environment file:**
+   ```bash
+   cp .env.example .env
+   ```
+
+2. **Edit `.env` with your actual values:**
+   ```bash
+   # Required: Google Cloud Configuration
+   GOOGLE_CLOUD_PROJECT_ID=your-project-id-here
+   GOOGLE_CLOUD_LOCATION=europe-west2
+   
+   # Optional: Add other secrets as needed
+   GCS_BUCKET_NAME=your-bucket-name-here
+   GCS_BUCKET_LOCATION=gs://your-bucket-name-here
+   ```
+
+3. **The `.env` file is automatically loaded** when you import modules that use `load_dotenv()` (like `agent.py`)
+
+#### Important Notes
+
+- **Never commit `.env` to git** - it's already in `.gitignore`
+- **Use `.env.example`** as a template - this file is safe to commit and documents what variables are needed
+- **Each developer** should have their own `.env` file with their own values
+- **In production**, set environment variables through your deployment platform (Cloud Run, GKE, etc.)
+
+#### Using Environment Variables in Code
+
+Access environment variables using `os.getenv()`:
+
+```python
+from dotenv import load_dotenv
+import os
+
+load_dotenv()  # Load .env file (usually called once at startup)
+
+project_id = os.getenv("GOOGLE_CLOUD_PROJECT_ID")
+bucket_name = os.getenv("GCS_BUCKET_NAME")
+```
+
 ### Code Formatting
 
 This project uses **Ruff** for fast Python linting and formatting. Ruff combines the functionality of multiple tools (flake8, isort, black, etc.) in a single, extremely fast package.
